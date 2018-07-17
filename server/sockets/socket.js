@@ -21,15 +21,18 @@ io.on('connection', (client) => {//recibo client desde el cliente.
 
         //mando mensajes de notificacion a las personas que pertenecen a una misma sala.
         client.broadcast.to(data.sala).emit('listaPersona', usuarios.getPersonasPorSalas(data.sala));//devuelve la lista de personas que estan actualmente en el chatt
+        client.broadcast.to(data.sala).emit('crearMensaje', crearMensaje('Administrador', `${data.nombre} se unió`));//notifico como administrador que X persona se desconecto o se salio.
         callback(usuarios.getPersonasPorSalas(data.sala));//respondo al cliente con los usuarios que estan en una misma sala
     });
 
 
-    client.on('crearMensaje', (data) => {//recibo un mensaje del cliente
+    client.on('crearMensaje', (data, callback) => {//recibo un mensaje del cliente
 
         let persona = usuarios.getPersona(client.id);//obtendo la informacion del usuario que escribio
         let mensaje = crearMensaje(persona.nombre, data.mensaje);//creo ese mensaje con la funcion crearMensaje()
         client.broadcast.to(persona.sala).emit('crearMensaje', mensaje);//lo reenvio a todos los clientes que pertenezcan a esa sala
+
+        callback(mensaje);//
     });
 
 
